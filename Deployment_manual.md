@@ -37,3 +37,6 @@ source .venv/bin/activate
 ## 5. Запуск краулера
 ``python crawler.py``
 
+## 6. Запуск токенизации и лемматизации
+``python text_processing.py``
+
