@@ -123,9 +123,8 @@ def main():
 
                 # Записываем в index.txt номер файла и URL
                 index_file.write(f"{saved_count} {url}\n")
-                time.sleep(DELAY)
+                time.sleep(DELAY) # Пауза между запросами, чтобы сервер не блокировал
 
-                # Пауза между запросами, чтобы сервер не блокировал
                 print(f"[+] Saved {saved_count}: {url}")
 
             except Exception as e:
