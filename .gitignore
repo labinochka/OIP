@@ -10,3 +10,6 @@
 /tfidf_results/
 /terms.zip
 /lemmas.zip
+
+__pycache__/
+*.pyc
