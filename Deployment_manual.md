@@ -40,3 +40,6 @@ source .venv/bin/activate
 ## 6. Запуск токенизации и лемматизации
 ``python text_processing.py``
 
+## 7. Запуск построения инвертированного индекса и булева поиска
+``python boolean_search.py``
+
