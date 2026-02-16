@@ -43,3 +43,6 @@ source .venv/bin/activate
 ## 7. Запуск построения инвертированного индекса и булева поиска
 ``python boolean_search.py``
 
+## 8. Запуск подсчета TF-IDF
+``python tfidf.py``
+
