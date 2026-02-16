@@ -2,10 +2,10 @@ import re
 import os
 from collections import defaultdict
 
-PAGES_DIR = "pages" # Папка с сохранёнными текстовыми документами
-LEMMAS_FILE = "lemmas.txt" # Файл с леммами (лемма -> токены)
-INDEX_DOCS_FILE = "index.txt" # Файл с соответствием doc_id -> URL
-INDEX_FILE = "inverted_index.txt" # Файл для сохранения инвертированного индекса
+PAGES_DIR = "../pages"  # Папка с сохранёнными текстовыми документами
+LEMMAS_FILE = "../lemmas.txt"  # Файл с леммами (лемма -> токены)
+INDEX_DOCS_FILE = "../index.txt"  # Файл с соответствием doc_id -> URL
+INDEX_FILE = "../inverted_index.txt"  # Файл для сохранения инвертированного индекса
 
 
 # Загрузка соответствия токен -> лемма

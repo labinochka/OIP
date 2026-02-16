@@ -6,9 +6,9 @@ from collections import defaultdict
 
 # Настройки
 
-PAGES_DIR = "pages" # Папка, в которой лежат сохранённые HTML-документы
-TOKENS_FILE = "tokens.txt" # Файл для сохранения списка токенов
-LEMMAS_FILE = "lemmas.txt" # Файл для сохранения сгруппированных лемм
+PAGES_DIR = "../pages"  # Папка, в которой лежат сохранённые HTML-документы
+TOKENS_FILE = "../tokens.txt"  # Файл для сохранения списка токенов
+LEMMAS_FILE = "../lemmas.txt"  # Файл для сохранения сгруппированных лемм
 
 # Стоп-слова
 STOP_WORDS = {

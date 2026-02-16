@@ -3,17 +3,17 @@ import math
 from collections import defaultdict, Counter
 import zipfile
 
-PAGES_DIR = "pages"  # Папка, в которой лежат сохранённые HTML-документы
-TOKENS_FILE = "tokens.txt"  # Файл со списком токенов
-LEMMAS_FILE = "lemmas.txt"  # Файл с леммами и соответствующими токенами
+PAGES_DIR = "../pages"  # Папка, в которой лежат сохранённые HTML-документы
+TOKENS_FILE = "../tokens.txt"  # Файл со списком токенов
+LEMMAS_FILE = "../lemmas.txt"  # Файл с леммами и соответствующими токенами
 
-OUTPUT_DIR = "tfidf_results"  # Файл с леммами и соответствующими токенами
+OUTPUT_DIR = "../tfidf_results"  # Файл с леммами и соответствующими токенами
 TERMS_DIR = os.path.join(OUTPUT_DIR, "terms")  # Подпапка для терминов
 LEMMAS_DIR = os.path.join(OUTPUT_DIR, "lemmas")  # Подпапка для лемм
 
 # Архивы, которые будут созданы
-ARCHIVE_TERMS_FILE = "terms.zip"
-ARCHIVE_LEMMAS_FILE = "lemmas.zip"
+ARCHIVE_TERMS_FILE = "../terms.zip"
+ARCHIVE_LEMMAS_FILE = "../lemmas.zip"
 
 
 # Загрузка токенов
