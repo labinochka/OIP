@@ -3,54 +3,25 @@ import math
 from collections import defaultdict, Counter
 import zipfile
 
-PAGES_DIR = "../pages"  # Папка, в которой лежат сохранённые HTML-документы
-TOKENS_FILE = "../tokens.txt"  # Файл со списком токенов
-LEMMAS_FILE = "../lemmas.txt"  # Файл с леммами и соответствующими токенами
+# Папка с исходными HTML-документами
+PAGES_DIR = "../pages"
 
-OUTPUT_DIR = "../tfidf_results"  # Файл с леммами и соответствующими токенами
-TERMS_DIR = os.path.join(OUTPUT_DIR, "terms")  # Подпапка для терминов
-LEMMAS_DIR = os.path.join(OUTPUT_DIR, "lemmas")  # Подпапка для лемм
+PAGE_TERMS_DIR = "../page_terms"
 
-# Архивы, которые будут созданы
+# Папка для результатов
+OUTPUT_DIR = "../tfidf_results"
+TERMS_DIR = os.path.join(OUTPUT_DIR, "terms")
+LEMMAS_DIR = os.path.join(OUTPUT_DIR, "lemmas")
+
 ARCHIVE_TERMS_FILE = "../terms.zip"
 ARCHIVE_LEMMAS_FILE = "../lemmas.zip"
 
 
-# Загрузка токенов
-def load_tokens():
-    with open(TOKENS_FILE, "r", encoding="utf-8") as f:
-        return set(line.strip() for line in f)
-
-
-# Загрузка соответствия token -> lemma
-def load_lemma_mapping():
-    token_to_lemma = {}
-    with open(LEMMAS_FILE, "r", encoding="utf-8") as f:
-        for line in f:
-            parts = line.strip().split()
-            lemma = parts[0]  # лемма
-            tokens = parts[1:]  # токены, относящиеся к этой лемме
-            for token in tokens:
-                token_to_lemma[token] = lemma
-    return token_to_lemma
-
-
-# Создание папок
 def create_output_dirs():
-    """
-        Создаёт папки:
-            tfidf_results/
-            tfidf_results/terms/
-            tfidf_results/lemmas/
-
-        exist_ok=True предотвращает ошибку,
-        если папка уже существует.
-        """
     os.makedirs(TERMS_DIR, exist_ok=True)
     os.makedirs(LEMMAS_DIR, exist_ok=True)
 
 
-# Создание архива ZIP с txt файлами
 def create_archive(directory, archive_name):
     with zipfile.ZipFile(archive_name, "w", zipfile.ZIP_DEFLATED) as zipf:
         for root, _, files in os.walk(directory):
@@ -59,64 +30,94 @@ def create_archive(directory, archive_name):
     print(f"[+] Archive created: {archive_name}")
 
 
-# Основная функция
+# Загрузка токенов страницы
+def load_page_tokens(doc_id):
+    file_path = os.path.join(PAGE_TERMS_DIR, f"{doc_id}_tokens.txt")
+
+    tokens = []
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            tokens = [line.strip() for line in f]
+
+    return tokens
+
+
+# Загрузка лемм страницы
+def load_page_lemmas(doc_id):
+    file_path = os.path.join(PAGE_TERMS_DIR, f"{doc_id}_lemmas.txt")
+
+    lemma_to_tokens = defaultdict(list)
+
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            for line in f:
+                parts = line.strip().split()
+                if not parts:
+                    continue
+
+                lemma = parts[0]
+                tokens = parts[1:]
+                lemma_to_tokens[lemma].extend(tokens)
+
+    return lemma_to_tokens
+
+
 def main():
     create_output_dirs()
 
-    tokens_set = load_tokens()
-    token_to_lemma = load_lemma_mapping()
-
-    # Хранилища для статистики по документам
     doc_term_counts = {}
     doc_lemma_counts = {}
 
-    # DF (document frequency)
-    # сколько документов содержит термин / лемму
     term_df = defaultdict(int)
     lemma_df = defaultdict(int)
 
-    total_docs = 0  # общее количество документов
+    total_docs = 0
 
-    # Подсчёт TF и DF
+    # Обработка каждой страницы
     for filename in os.listdir(PAGES_DIR):
+
         if filename.endswith(".txt"):
 
             total_docs += 1
             doc_id = filename.replace(".txt", "")
 
+            # Загружаем токены страницы
+            tokens = load_page_tokens(doc_id)
+
+            # Загружаем леммы страницы
+            lemma_to_tokens = load_page_lemmas(doc_id)
+
+            # Читаем оригинальный текст страницы
             with open(os.path.join(PAGES_DIR, filename), "r", encoding="utf-8") as f:
                 words = f.read().lower().split()
 
-            # Оставляем только токены из tokens.txt
-            words = [w for w in words if w in tokens_set]
+            # Оставляем только токены этой страницы
+            words = [w for w in words if w in tokens]
 
-            # Общее количество терминов в документе
             total_terms_in_doc = len(words)
 
-            # Подсчёт количества каждого термина
+            # TF терминов
             term_counts = Counter(words)
 
-            # Подсчёт лемм
+            # TF лемм
             lemma_counts = defaultdict(int)
-            for term, count in term_counts.items():
-                lemma = token_to_lemma.get(term)
-                if lemma:
-                    lemma_counts[lemma] += count
 
-            # Сохраняем статистику документа
+            for lemma, lemma_tokens in lemma_to_tokens.items():
+                for token in lemma_tokens:
+                    lemma_counts[lemma] += term_counts.get(token, 0)
+
             doc_term_counts[doc_id] = (term_counts, total_terms_in_doc)
             doc_lemma_counts[doc_id] = (lemma_counts, total_terms_in_doc)
 
-            # Обновляем DF терминов
+            # DF терминов
             for term in term_counts:
                 term_df[term] += 1
 
-            # Обновляем DF для лемм
+            # DF лемм
             for lemma in lemma_counts:
                 lemma_df[lemma] += 1
 
     # Подсчёт IDF
-    # IDF = log(N / df)
     term_idf = {}
     lemma_idf = {}
 
@@ -126,9 +127,7 @@ def main():
     for lemma, df in lemma_df.items():
         lemma_idf[lemma] = math.log(total_docs / df)
 
-    # Вычисление TF-IDF и запись файлов
-    # TF = count / total_terms
-    # TF-IDF = TF * IDF
+    # Запись TF-IDF файлов
     for doc_id in doc_term_counts:
 
         term_counts, total_terms = doc_term_counts[doc_id]
@@ -156,6 +155,7 @@ def main():
 
     print("TF-IDF успешно рассчитан.")
     print(f"Результаты сохранены в папке: {OUTPUT_DIR}")
+
     create_archive(TERMS_DIR, ARCHIVE_TERMS_FILE)
     create_archive(LEMMAS_DIR, ARCHIVE_LEMMAS_FILE)
 

@@ -132,43 +132,59 @@ def smart_lemmatize(word):
     return word
 
 def main():
-    # Множество для хранения уникальных токенов (без дубликатов)
-    all_tokens = set()
+
+    OUTPUT_DIR = "../page_terms"
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Проходим по всем файлам в папке pages
     for filename in os.listdir(PAGES_DIR):
+
         file_path = os.path.join(PAGES_DIR, filename)
 
-        if os.path.isfile(file_path):
+        if os.path.isfile(file_path) and filename.endswith(".txt"):
+
+            # doc_id = имя файла без расширения
+            doc_id = filename.replace(".txt", "")
+
+            # Извлекаем текст
             text = extract_text_from_html(file_path)
+
+            # Токенизация
             tokens = tokenize(text)
-            all_tokens.update(tokens)
 
-    # Сортируем токены по алфавиту
-    sorted_tokens = sorted(all_tokens)
+            # Убираем дубликаты и сортируем
+            unique_tokens = sorted(set(tokens))
 
-    # Сохранение tokens.txt
-    with open(TOKENS_FILE, "w", encoding="utf-8") as f:
-        for token in sorted_tokens:
-            f.write(token + "\n")
+            # Сохраняем токены страницы
+            tokens_file_path = os.path.join(
+                OUTPUT_DIR, f"{doc_id}_tokens.txt"
+            )
 
-    print(f"[+] Сохранено {len(sorted_tokens)} токенов")
+            with open(tokens_file_path, "w", encoding="utf-8") as f:
+                for token in unique_tokens:
+                    f.write(token + "\n")
 
-    # Группировка по леммам
-    lemma_dict = defaultdict(list)
+            # Лемматизация страницы
+            lemma_dict = defaultdict(list)
 
-    for token in sorted_tokens:
-        lemma = smart_lemmatize(token)
-        lemma_dict[lemma].append(token)
+            for token in unique_tokens:
+                lemma = smart_lemmatize(token)
+                lemma_dict[lemma].append(token)
 
-    # Сохранение lemmas.txt
-    # Формат строки: <лемма> <токен1> <токен2> ... <токенN>
-    with open(LEMMAS_FILE, "w", encoding="utf-8") as f:
-        for lemma in sorted(lemma_dict.keys()):
-            tokens_line = " ".join(sorted(lemma_dict[lemma]))
-            f.write(f"{lemma} {tokens_line}\n")
+            # Сохраняем леммы страницы
+            lemmas_file_path = os.path.join(
+                OUTPUT_DIR, f"{doc_id}_lemmas.txt"
+            )
 
-    print(f"[+] Сохранено {len(lemma_dict)} лемм")
+            with open(lemmas_file_path, "w", encoding="utf-8") as f:
+                for lemma in sorted(lemma_dict.keys()):
+                    tokens_line = " ".join(sorted(lemma_dict[lemma]))
+                    f.write(f"{lemma} {tokens_line}\n")
+
+            print(f"[+] Обработан документ {doc_id}")
+
+    print("\nГотово. Для каждой страницы созданы отдельные файлы.")
+
 
 if __name__ == "__main__":
     main()
