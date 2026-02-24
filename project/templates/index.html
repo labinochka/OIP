@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; }
+        input[type=text] { width: 400px; padding: 8px; font-size: 16px; }
+        input[type=submit] { padding: 8px 16px; font-size: 16px; }
+        table { border-collapse: collapse; width: 80%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        tr:hover { background-color: #f1f1f1; }
+        .no-results { color: #900; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Поиск</h1>
+    <form method="post">
+        <input type="text" name="query" placeholder="Введите запрос" value="{{ query }}">
+        <input type="submit" value="Найти">
+    </form>
+
+    {% if results %}
+        <table>
+            <tr>
+                <th>Документ</th>
+                <th>Score</th>
+            </tr>
+            {% for url, score in results %}
+            <tr>
+                <td><a href="{{ url }}" target="_blank">{{ url }}</a></td>
+                <td>{{ "%.4f"|format(score) }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% elif query %}
+        <p class="no-results">Ничего не найдено.</p>
+    {% endif %}
+</body>
+</html>

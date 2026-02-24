@@ -52,3 +52,9 @@ source .venv/bin/activate
 ## 10. Запуск векторного поиска
 ``python vector_search.py``
 
+## 11. Обновление зависимостей
+``pip install -r requirements.txt``
+
+## 12. Запуск поисковой системы
+``python app.py``
+
