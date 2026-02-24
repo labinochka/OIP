@@ -49,3 +49,6 @@ source .venv/bin/activate
 ## 9. Запуск подсчета TF-IDF
 ``python tfidf.py``
 
+## 10. Запуск векторного поиска
+``python vector_search.py``
+
