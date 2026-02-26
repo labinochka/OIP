@@ -1,6 +1,6 @@
 import os
 import math
-from collections import defaultdict, Counter
+from collections import Counter
 
 TFIDF_DIR = "../tfidf_results/lemmas"
 INDEX_DOCS_FILE = "../index.txt"
